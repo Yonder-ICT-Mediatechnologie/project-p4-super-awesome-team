@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Stats - Hangman Game</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Hangman Game</h1>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="game.html">Play</a></li>
+                <li><a href="leaderboard.html">Leaderboard</a></li>
+                <li><a href="stats.html">My Stats</a></li>
+                <li><a href="#" id="logout-link">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section class="stats-container">
+            <h2>My Statistics</h2>
+            
+            <div class="user-profile">
+                <h3>Player Profile</h3>
+                <p>Username: <span id="player-username">Loading...</span></p>
+                <p>Member Since: <span id="player-joined-date">Loading...</span></p>
+            </div>
+            
+            <div class="stats-summary">
+                <h3>Game Summary</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h4>Games Played</h4>
+                        <p id="total-games">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Games Won</h4>
+                        <p id="games-won">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Win Rate</h4>
+                        <p id="win-rate">0%</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Average Attempts</h4>
+                        <p id="avg-attempts">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recent-games">
+                <h3>Recent Games</h3>
+                <table class="games-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Word</th>
+                            <th>Attempts Used</th>
+                            <th>Time (seconds)</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-games-data">
+                        <!-- Will be populated by JavaScript -->
+                        <tr>
+                            <td>2025-04-07</td>
+                            <td>JAVASCRIPT</td>
+                            <td>2</td>
+                            <td>45</td>
+                            <td>Won</td>
+                        </tr>
+                        <tr>
+                            <td>2025-04-06</td>
+                            <td>HANGMAN</td>
+                            <td>1</td>
+                            <td>30</td>
+                            <td>Won</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="achievement-section">
+                <h3>Achievements</h3>
+                <div class="achievements-grid" id="achievements-container">
+                    <!-- Will be populated by JavaScript in future sprints -->
+                    <div class="achievement">
+                        <h4>First Win</h4>
+                        <p>Win your first game</p>
+                        <span class="achievement-status">Unlocked</span>
+                    </div>
+                    <div class="achievement">
+                        <h4>Perfect Game</h4>
+                        <p>Win a game without any incorrect guesses</p>
+                        <span class="achievement-status">Locked</span>
+                    </div>
+                    <div class="achievement">
+                        <h4>Word Master</h4>
+                        <p>Win 10 games in a row</p>
+                        <span class="achievement-status">Locked</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Hangman Game - Project P4</p>
+        </div>
+    </footer>
+    
+    <script src="../js/main.js"></script>
+    <script src="../js/stats.js"></script>
+</body>
+</html>
