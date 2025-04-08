@@ -1,0 +1,78 @@
+/* Responsive styles for Hangman Game - Sprint 1 */
+
+/* Tablets and smaller desktops */
+@media (max-width: 992px) {
+    .container {
+      padding: 0.8rem;
+    }
+    
+    .hangman-display {
+      width: 250px;
+      height: 250px;
+    }
+    
+    .letter-box {
+      width: 35px;
+      height: 35px;
+      font-size: 1.5rem;
+    }
+    
+    .key {
+      width: 35px;
+      height: 35px;
+    }
+  }
+  
+  /* Mobile devices */
+  @media (max-width: 576px) {
+    nav ul {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    nav li {
+      margin: 0.3rem 0;
+    }
+    
+    .hangman-display {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .letter-box {
+      width: 30px;
+      height: 30px;
+      font-size: 1.2rem;
+    }
+    
+    .keyboard {
+      gap: 0.3rem;
+    }
+    
+    .key {
+      width: 30px;
+      height: 30px;
+      font-size: 0.9rem;
+    }
+    
+    .auth-container {
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+  }
+  
+  /* Very small devices */
+  @media (max-width: 320px) {
+    .letter-box {
+      width: 25px;
+      height: 25px;
+      font-size: 1rem;
+    }
+    
+    .key {
+      width: 25px;
+      height: 25px;
+      font-size: 0.8rem;
+      margin: 0.1rem;
+    }
+  }

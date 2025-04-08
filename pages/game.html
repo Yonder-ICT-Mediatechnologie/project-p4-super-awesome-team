@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Hangman</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Hangman Game</h1>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="game.html">Play</a></li>
+                <li><a href="leaderboard.html">Leaderboard</a></li>
+                <li><a href="stats.html">My Stats</a></li>
+                <li><a href="#" id="logout-link">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <div class="game-container">
+            <!-- The hangman image will go here in future sprints -->
+            <div class="hangman-display">
+                <p>Hangman Display (Coming in future sprint)</p>
+            </div>
+            
+            <!-- Word display with blanks -->
+            <div class="word-display" id="word-display">
+                <!-- Will be filled by JavaScript -->
+                <div class="letter-box"></div>
+                <div class="letter-box"></div>
+                <div class="letter-box"></div>
+                <div class="letter-box"></div>
+                <div class="letter-box"></div>
+            </div>
+            
+            <!-- Virtual keyboard -->
+            <div class="keyboard" id="keyboard">
+                <!-- Will be filled by JavaScript -->
+            </div>
+            
+            <div class="game-controls">
+                <p>Remaining attempts: <span id="attempts">6</span></p>
+                <button id="new-game-btn" class="btn">New Game</button>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Hangman Game - Project P4</p>
+        </div>
+    </footer>
+    
+    <script src="../js/game.js"></script>
+</body>
+</html>
