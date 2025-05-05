@@ -74,6 +74,20 @@ function handleLogout(event) {
         window.location.href = 'index.html';
     }
 }
+// Add this to your main.js file
+document.addEventListener('DOMContentLoaded', function() {
+    // Specific fix for logout functionality
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            // Clear the current user from localStorage
+            localStorage.removeItem('hangmanCurrentUser');
+            // Redirect to index.html
+            window.location.href = 'index.html';
+        });
+    }
+});
 
 /**
  * Animation and visual effects research for future sprints

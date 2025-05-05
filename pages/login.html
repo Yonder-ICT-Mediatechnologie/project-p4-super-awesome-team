@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Hangman Game</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
     <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
@@ -18,34 +20,153 @@
         <div class="container">
             <ul>
                 <li><a href="../index.html">Home</a></li>
-                <li><a href="login.html">Login</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
                 <li><a href="register.html">Register</a></li>
             </ul>
         </div>
     </nav>
     
     <main class="container">
-        <div class="auth-container">
-            <h2 class="auth-title">Login</h2>
+        <div class="auth-container fade-in">
+            <h2 class="auth-title">Login to Your Account</h2>
+            
+            <div class="auth-illustration">
+                <svg width="150" height="150" viewBox="0 0 300 300">
+                    <!-- Lock illustration -->
+                    <rect x="100" y="120" width="100" height="80" rx="10" fill="#3498db" />
+                    <rect x="115" y="80" width="70" height="40" rx="20" stroke="#3498db" stroke-width="10" fill="transparent" />
+                    <circle cx="150" cy="160" r="15" fill="white" />
+                    <line x1="150" y1="160" x2="150" y2="180" stroke="white" stroke-width="8" stroke-linecap="round" />
+                </svg>
+            </div>
+            
             <form id="login-form">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <input type="text" id="username" name="username" required placeholder="Enter your username">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                
+                <div class="form-group remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn">Login</button>
+                    <button type="submit" class="btn btn-login pulse">Login</button>
                 </div>
                 
-                <p>Don't have an account? <a href="register.html">Register here</a></p>
+                <p class="auth-redirect">Don't have an account? <a href="register.html">Register here</a></p>
             </form>
         </div>
     </main>
+    
+    <!-- Login page specific styles -->
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+        
+        .auth-illustration {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="email"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .remember-me label {
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .remember-me input {
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .auth-redirect {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .auth-redirect a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+        
+        .auth-redirect a:hover {
+            color: var(--accent-color);
+        }
+    </style>
     
     <footer>
         <div class="container">
