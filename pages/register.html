@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Hangman Game</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
     <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
@@ -19,49 +21,269 @@
             <ul>
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="login.html">Login</a></li>
-                <li><a href="register.html">Register</a></li>
+                <li><a href="register.html" class="active">Register</a></li>
             </ul>
         </div>
     </nav>
     
     <main class="container">
-        <div class="auth-container">
+        <div class="auth-container fade-in">
             <h2 class="auth-title">Create an Account</h2>
+            
+            <div class="auth-illustration">
+                <svg width="150" height="150" viewBox="0 0 300 300">
+                    <!-- User profile creation illustration -->
+                    <circle cx="150" cy="120" r="50" fill="#3498db" />
+                    <path d="M150 180 C80 180 60 230 60 280 L240 280 C240 230 220 180 150 180Z" fill="#3498db" />
+                    <circle cx="150" cy="110" r="25" fill="white" />
+                    <path d="M150 140 C120 140 110 165 110 190 L190 190 C190 165 180 140 150 140Z" fill="white" />
+                </svg>
+            </div>
+            
             <form id="register-form">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <input type="text" id="username" name="username" required placeholder="Choose a username">
                 </div>
                 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email address">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="password" id="password" name="password" required placeholder="Create a password">
+                    <div class="password-strength">
+                        <div class="strength-bar"></div>
+                        <span class="strength-text">Password strength: <span id="strength-value">Weak</span></span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" name="confirm-password" required>
+                    <input type="password" id="confirm-password" name="confirm-password" required placeholder="Confirm your password">
+                </div>
+                
+                <div class="form-group terms-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn">Register</button>
+                    <button type="submit" class="btn btn-register pulse">Register</button>
                 </div>
                 
-                <p>Already have an account? <a href="login.html">Login here</a></p>
+                <p class="auth-redirect">Already have an account? <a href="login.html">Login here</a></p>
             </form>
         </div>
     </main>
+    
+    <!-- Register page specific styles -->
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+        
+        .auth-illustration {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="email"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .strength-bar {
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 3px;
+            margin-bottom: 0.25rem;
+            position: relative;
+        }
+        
+        .strength-bar::before {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 33%;
+            background-color: #e74c3c;
+            border-radius: 3px;
+        }
+        
+        .strength-text {
+            color: #777;
+        }
+        
+        #strength-value {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .terms-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .terms-checkbox label {
+            margin: 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .terms-checkbox input {
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .terms-checkbox a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
+        .btn-register {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-register:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .auth-redirect {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .auth-redirect a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+        
+        .auth-redirect a:hover {
+            color: var(--accent-color);
+        }
+    </style>
     
     <footer>
         <div class="container">
             <p>&copy; 2025 Hangman Game - Project P4</p>
         </div>
     </footer>
+    
+    <!-- Password strength evaluator -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const strengthBar = document.querySelector('.strength-bar');
+            const strengthValue = document.getElementById('strength-value');
+            
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = calculatePasswordStrength(password);
+                
+                // Update strength bar
+                strengthBar.style.setProperty('--strength-width', `${strength}%`);
+                strengthBar.style.width = `${strength}%`;
+                
+                // Update text and color
+                if (strength < 33) {
+                    strengthBar.style.backgroundColor = '#e74c3c'; // Red
+                    strengthValue.textContent = 'Weak';
+                    strengthValue.style.color = '#e74c3c';
+                } else if (strength < 66) {
+                    strengthBar.style.backgroundColor = '#f39c12'; // Orange
+                    strengthValue.textContent = 'Medium';
+                    strengthValue.style.color = '#f39c12';
+                } else {
+                    strengthBar.style.backgroundColor = '#2ecc71'; // Green
+                    strengthValue.textContent = 'Strong';
+                    strengthValue.style.color = '#2ecc71';
+                }
+            });
+            
+            function calculatePasswordStrength(password) {
+                // This is a simple password strength calculator
+                // In a real application, you would use a more sophisticated algorithm
+                
+                let strength = 0;
+                
+                // Length contribution
+                if (password.length >= 8) {
+                    strength += 25;
+                } else {
+                    strength += (password.length / 8) * 25;
+                }
+                
+                // Complexity contribution
+                if (/[A-Z]/.test(password)) strength += 15; // Uppercase
+                if (/[a-z]/.test(password)) strength += 15; // Lowercase
+                if (/[0-9]/.test(password)) strength += 15; // Numbers
+                if (/[^A-Za-z0-9]/.test(password)) strength += 15; // Special chars
+                
+                // Variety contribution
+                const uniqueChars = new Set(password).size;
+                const varietyContribution = (uniqueChars / password.length) * 15;
+                strength += varietyContribution;
+                
+                return Math.min(100, strength);
+            }
+        });
+    </script>
     
     <script src="../js/auth.js"></script>
 </body>

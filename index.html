@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hangman Game</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -17,7 +19,7 @@
     <nav>
         <div class="container">
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="pages/login.html">Login</a></li>
                 <li><a href="pages/register.html">Register</a></li>
             </ul>
@@ -25,26 +27,252 @@
     </nav>
     
     <main class="container">
-        <section class="intro">
-            <h2>Welcome to Hangman!</h2>
+        <section class="intro fade-in">
+            <h2 class="typing-effect">Welcome to Hangman!</h2>
             <p>Test your vocabulary and guessing skills with our fun word-guessing game. Can you guess the word before the hangman is complete?</p>
             
+            <div class="hero-image">
+                <svg width="200" height="200" viewBox="0 0 300 300" class="float">
+                    <!-- Gallows -->
+                    <line x1="50" y1="250" x2="250" y2="250" stroke="#333" stroke-width="3" />
+                    <line x1="100" y1="250" x2="100" y2="50" stroke="#333" stroke-width="3" />
+                    <line x1="100" y1="50" x2="200" y2="50" stroke="#333" stroke-width="3" />
+                    <line x1="200" y1="50" x2="200" y2="80" stroke="#333" stroke-width="2" />
+                    
+                    <!-- Hangman -->
+                    <circle cx="200" cy="100" r="20" stroke="#333" stroke-width="2" fill="transparent" />
+                    <line x1="200" y1="120" x2="200" y2="180" stroke="#333" stroke-width="2" />
+                    <line x1="200" y1="140" x2="170" y2="160" stroke="#333" stroke-width="2" />
+                    <line x1="200" y1="140" x2="230" y2="160" stroke="#333" stroke-width="2" />
+                    <line x1="200" y1="180" x2="170" y2="220" stroke="#333" stroke-width="2" />
+                    <line x1="200" y1="180" x2="230" y2="220" stroke="#333" stroke-width="2" />
+                    
+                    <!-- Word display illustration -->
+                    <rect x="90" y="280" width="30" height="30" fill="#3498db" rx="4" />
+                    <rect x="130" y="280" width="30" height="30" fill="#3498db" rx="4" />
+                    <rect x="170" y="280" width="30" height="30" fill="#3498db" rx="4" />
+                    <rect x="210" y="280" width="30" height="30" fill="#3498db" rx="4" />
+                </svg>
+            </div>
+            
             <div class="cta-buttons">
-                <a href="pages/login.html" class="btn">Login to Play</a>
+                <a href="pages/login.html" class="btn pulse">Login to Play</a>
                 <a href="pages/register.html" class="btn">Register Now</a>
             </div>
         </section>
         
-        <section class="features">
+        <section class="features slide-in">
             <h3>Game Features</h3>
-            <ul>
-                <li>Challenge yourself with words of different difficulty levels</li>
-                <li>Track your high scores</li>
-                <li>Compare with other players on the leaderboard</li>
-                <li>Play on any device - fully responsive design</li>
-            </ul>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h4>Word Categories</h4>
+                    <p>Challenge yourself with words from different categories like Programming, Animals, Countries, and more!</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Track Progress</h4>
+                    <p>Keep track of your high scores and statistics to see how you improve over time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h4>Leaderboards</h4>
+                    <p>Compete with other players and see where you rank on daily and all-time leaderboards.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏅</div>
+                    <h4>Achievements</h4>
+                    <p>Unlock special achievements as you play and improve your skills.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h4>Responsive Design</h4>
+                    <p>Play on any device - fully responsive design adapts to your screen size.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h4>Beautiful UI</h4>
+                    <p>Enjoy a visually appealing interface with smooth animations and intuitive controls.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="how-to-play fade-in">
+            <h3>How To Play</h3>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Create an Account</h4>
+                    <p>Register for free to start playing and tracking your progress.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Select a Category</h4>
+                    <p>Choose from various word categories or go for a random challenge.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Guess the Word</h4>
+                    <p>Click letters to make guesses. Each correct letter is revealed; each wrong guess adds to the hangman.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4>Win or Lose</h4>
+                    <p>Guess the word before the hangman is complete to win!</p>
+                </div>
+            </div>
         </section>
     </main>
+    
+    <!-- Home page specific styles -->
+    <style>
+        /* Enhanced styles for Home Page */
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .intro h2 {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+        
+        .intro p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        
+        .hero-image {
+            margin: 1rem 0 2rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .cta-buttons .btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Features grid */
+        .features {
+            max-width: 1100px;
+            margin: 0 auto 3rem;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .features h3 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h4 {
+            color: var(--secondary-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        /* How to play section */
+        .how-to-play {
+            max-width: 1100px;
+            margin: 0 auto 3rem;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .how-to-play h3 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            display: none;
+        }
+        
+        @media (min-width: 992px) {
+            .step:not(:last-child)::after {
+                display: block;
+            }
+        }
+    </style>
     
     <footer>
         <div class="container">
