@@ -81,7 +81,24 @@
     animation: bounce 0.75s ease;
   }
   
-  /* Typing Animation for Word Display */
+  .typing-effect {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 3s steps(40, end) forwards;
+  }
+  
+  .typing-effect::after {
+    content: '';
+    position: absolute;
+    right: -10px; /* Adjust based on your caret width */
+    top: 0;
+    height: 100%;
+    border-right: 3px solid;
+    animation: blink-caret 0.75s step-end infinite;
+  }
+  
   @keyframes typing {
     from {
       width: 0;
@@ -98,16 +115,6 @@
     50% {
       border-color: var(--primary-color);
     }
-  }
-  
-  .typing-effect {
-    overflow: hidden;
-    white-space: nowrap;
-    border-right: 3px solid;
-    width: 0;
-    animation: 
-      typing 3.5s steps(40, end) forwards,
-      blink-caret 0.75s step-end infinite;
   }
   
   /* Spin Animation */
