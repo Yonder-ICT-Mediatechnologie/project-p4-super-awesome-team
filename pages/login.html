@@ -4,74 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Hangman Game</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/animations.css">
-    <link rel="stylesheet" href="../css/responsive.css">
-</head>
-<body>
-    <header>
-        <div class="container">
-            <h1>Hangman Game</h1>
-        </div>
-    </header>
-    
-    <nav>
-        <div class="container">
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="login.html" class="active">Login</a></li>
-                <li><a href="register.html">Register</a></li>
-            </ul>
-        </div>
-    </nav>
-    
-    <main class="container">
-        <div class="auth-container fade-in">
-            <h2 class="auth-title">Login to Your Account</h2>
-            
-            <div class="auth-illustration">
-                <svg width="150" height="150" viewBox="0 0 300 300">
-                    <!-- Lock illustration -->
-                    <rect x="100" y="120" width="100" height="80" rx="10" fill="#3498db" />
-                    <rect x="115" y="80" width="70" height="40" rx="20" stroke="#3498db" stroke-width="10" fill="transparent" />
-                    <circle cx="150" cy="160" r="15" fill="white" />
-                    <line x1="150" y1="160" x2="150" y2="180" stroke="white" stroke-width="8" stroke-linecap="round" />
-                </svg>
-            </div>
-            
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required placeholder="Enter your username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
-                </div>
-                
-                <div class="form-group remember-me">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Remember me</label>
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-login pulse">Login</button>
-                </div>
-                
-                <p class="auth-redirect">Don't have an account? <a href="register.html">Register here</a></p>
-            </form>
-        </div>
-    </main>
-    
-    <!-- Login page specific styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .auth-container {
-            max-width: 500px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: white;
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        header {
+            background: var(--background);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        nav {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
             transition: all 0.2s ease;
         }
