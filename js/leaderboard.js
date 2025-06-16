@@ -32,7 +32,7 @@ function checkUserLoggedIn() {
 }
 
 /**
- * Load leaderboard data based on timeframe
+ * Load leaderboard data from database API
  * @param {string} timeframe - Timeframe filter (today, yesterday, alltime)
  * @param {number} page - Page number for pagination
  */
@@ -47,7 +47,14 @@ function loadLeaderboard(timeframe, page = 1) {
         }
     });
     
-    // Get all scores from localStorage
+    // Load from localStorage only
+    loadLeaderboardFromLocalStorage(timeframe, page);
+}
+
+/**
+ * Fallback function to load leaderboard from localStorage
+ */
+function loadLeaderboardFromLocalStorage(timeframe, page = 1) {
     const scores = JSON.parse(localStorage.getItem('hangmanScores')) || [];
     
     // Filter scores based on timeframe
@@ -55,16 +62,13 @@ function loadLeaderboard(timeframe, page = 1) {
     const now = new Date();
     
     if (timeframe === 'today') {
-        // Get scores from today
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
         filteredScores = scores.filter(score => score.date >= today);
     } else if (timeframe === 'yesterday') {
-        // Get scores from yesterday
         const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toISOString();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
         filteredScores = scores.filter(score => score.date >= yesterday && score.date < today);
     } else {
-        // Get all scores
         filteredScores = [...scores];
     }
     
@@ -75,18 +79,13 @@ function loadLeaderboard(timeframe, page = 1) {
     const itemsPerPage = 10;
     const totalPages = Math.ceil(leaderboardData.length / itemsPerPage);
     
-    // Adjust page if out of bounds
     page = Math.max(1, Math.min(page, totalPages));
     
-    // Slice data for current page
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pageData = leaderboardData.slice(startIndex, endIndex);
     
-    // Display the data
     displayLeaderboard(pageData, startIndex);
-    
-    // Update pagination info
     updatePagination(page, totalPages, timeframe);
 }
 
@@ -140,7 +139,63 @@ function processLeaderboardData(scores) {
 }
 
 /**
- * Display the leaderboard data
+ * Display leaderboard data from API
+ * @param {Array} data - Leaderboard data from API
+ */
+function displayLeaderboardFromAPI(data) {
+    const leaderboardBody = document.getElementById('leaderboard-data');
+    
+    // Clear existing data
+    leaderboardBody.innerHTML = '';
+    
+    if (data.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="5">No data available for this timeframe</td>';
+        leaderboardBody.appendChild(row);
+        return;
+    }
+    
+    // Get current user for highlighting
+    const currentUser = localStorage.getItem('hangmanCurrentUser');
+    const currentUsername = currentUser ? JSON.parse(currentUser).username : '';
+    
+    // Add new data
+    data.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        
+        // Highlight current user
+        if (entry.player === currentUsername) {
+            row.classList.add('current-user');
+        }
+        
+        // Add medal icons for top 3
+        let rankDisplay = entry.rank;
+        if (entry.rank === 1) {
+            rankDisplay = '🥇 1';
+        } else if (entry.rank === 2) {
+            rankDisplay = '🥈 2';
+        } else if (entry.rank === 3) {
+            rankDisplay = '🥉 3';
+        }
+        
+        row.innerHTML = `
+            <td>${rankDisplay}</td>
+            <td>${entry.player}</td>
+            <td>${entry.score}</td>
+            <td>${entry.gamesPlayed}</td>
+            <td>${entry.gamesWon}</td>
+        `;
+        
+        leaderboardBody.appendChild(row);
+        
+        // Add animation with delay based on index
+        row.style.animationDelay = `${index * 0.1}s`;
+        row.classList.add('fade-in');
+    });
+}
+
+/**
+ * Display the leaderboard data (fallback)
  * @param {Array} data - Leaderboard data array
  * @param {number} startIndex - Starting index for rank calculation
  */
@@ -151,7 +206,6 @@ function displayLeaderboard(data, startIndex = 0) {
     leaderboardBody.innerHTML = '';
     
     if (data.length === 0) {
-        // No data for the selected timeframe
         const row = document.createElement('tr');
         row.innerHTML = '<td colspan="5">No data available for this timeframe</td>';
         leaderboardBody.appendChild(row);

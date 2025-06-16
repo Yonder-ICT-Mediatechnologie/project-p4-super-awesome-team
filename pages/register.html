@@ -4,40 +4,379 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Hangman Game</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap">
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/animations.css">
-    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        header {
+            background: var(--background);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        nav {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--primary);
+            background: var(--surface);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 0;
+        }
+
+        .auth-container {
+            background: var(--background);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--surface);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--background);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .terms-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--primary);
+        }
+
+        .terms-checkbox label {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .terms-checkbox a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-redirect {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-redirect a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .auth-redirect a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: var(--background);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 500px;
+            max-height: 70vh;
+            margin: 1rem;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .modal-body h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.1rem;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .modal-content {
+                margin: 0.5rem;
+            }
+            
+            .notification {
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(-100px);
+            }
+            
+            .notification.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>Hangman Game</h1>
+            <div class="header-content">
+                <a href="../index.html" class="logo">Hangman</a>
+                <nav>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html" class="active">Register</a></li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </header>
-    
-    <nav>
-        <div class="container">
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="register.html" class="active">Register</a></li>
-            </ul>
-        </div>
-    </nav>
-    
-    <main class="container">
-        <div class="auth-container fade-in">
-            <h2 class="auth-title">Create an Account</h2>
-            
-            <div class="auth-illustration">
-                <svg width="150" height="150" viewBox="0 0 300 300">
-                    <!-- User profile creation illustration -->
-                    <circle cx="150" cy="120" r="50" fill="#3498db" />
-                    <path d="M150 180 C80 180 60 230 60 280 L240 280 C240 230 220 180 150 180Z" fill="#3498db" />
-                    
-                </svg>
-            </div>
+
+    <main>
+        <div class="auth-container">
+            <h2 class="auth-title">Create Account</h2>
             
             <form id="register-form">
                 <div class="form-group">
@@ -47,16 +386,12 @@
                 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required placeholder="Create a password">
-                    <div class="password-strength">
-                        <div class="strength-bar"></div>
-                        <span class="strength-text">Password strength: <span id="strength-value">Weak</span></span>
-                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -64,226 +399,103 @@
                     <input type="password" id="confirm-password" name="confirm-password" required placeholder="Confirm your password">
                 </div>
                 
-                <div class="form-group terms-checkbox">
+                <div class="terms-checkbox">
                     <input type="checkbox" id="terms" name="terms" required>
-                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                    <label for="terms">I agree to the <a href="#" id="terms-link">Terms of Service</a> and <a href="#" id="privacy-link">Privacy Policy</a></label>
                 </div>
                 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-register pulse">Register</button>
-                </div>
+                <button type="submit" class="btn">Create Account</button>
                 
-                <p class="auth-redirect">Already have an account? <a href="login.html">Login here</a></p>
+                <p class="auth-redirect">Already have an account? <a href="login.html">Sign in</a></p>
             </form>
         </div>
     </main>
-    
-    <!-- Register page specific styles -->
-    <style>
-        .auth-container {
-            max-width: 500px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .auth-title {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
-            font-size: 2rem;
-        }
-        
-        .auth-illustration {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-        
-        .form-group input[type="text"],
-        .form-group input[type="password"],
-        .form-group input[type="email"] {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: all var(--transition-speed) ease;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-        
-        .form-group input::placeholder {
-            color: #aaa;
-        }
-        
-        .password-strength {
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-        }
-        
-        .strength-bar {
-            height: 5px;
-            background-color: #ddd;
-            border-radius: 3px;
-            margin-bottom: 0.25rem;
-            position: relative;
-        }
-        
-        .strength-bar::before {
-            content: '';
-            position: absolute;
-            height: 100%;
-            width: 33%;
-            background-color: #e74c3c;
-            border-radius: 3px;
-        }
-        
-        .strength-text {
-            color: #777;
-        }
-        
-        #strength-value {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-        
-        .terms-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .terms-checkbox label {
-            margin: 0;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        
-        .terms-checkbox input {
-            margin: 0;
-            cursor: pointer;
-        }
-        
-        .terms-checkbox a {
-            color: var(--primary-color);
-            text-decoration: underline;
-        }
-        
-        .btn-register {
-            width: 100%;
-            padding: 0.8rem;
-            font-size: 1.1rem;
-            background-color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-register:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .auth-redirect {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .auth-redirect a {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-decoration: underline;
-        }
-        
-        .auth-redirect a:hover {
-            color: var(--accent-color);
-        }
-    </style>
-    
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Hangman Game - Project P4</p>
+
+    <!-- Terms Modal -->
+    <div id="terms-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Terms of Service</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>1. Acceptance of Terms</h3>
+                <p>By using this Hangman game, you agree to these terms and conditions.</p>
+                
+                <h3>2. Use of Service</h3>
+                <p>You may use this game for personal entertainment purposes. Please be respectful of other users.</p>
+                
+                <h3>3. User Accounts</h3>
+                <p>You are responsible for maintaining the security of your account and password.</p>
+                
+                <h3>4. Prohibited Uses</h3>
+                <p>You may not use this service for any unlawful purposes or to violate any laws.</p>
+                
+                <h3>5. Privacy</h3>
+                <p>We respect your privacy. Please see our Privacy Policy for more information.</p>
+            </div>
         </div>
-    </footer>
-    
-    <!-- Password strength evaluator -->
+    </div>
+
+    <!-- Privacy Modal -->
+    <div id="privacy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Privacy Policy</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Information We Collect</h3>
+                <p>We collect minimal information necessary to provide the game service, including username and email for account creation.</p>
+                
+                <h3>How We Use Information</h3>
+                <p>Your information is used solely to provide the game service and maintain your account.</p>
+                
+                <h3>Data Storage</h3>
+                <p>Your data is stored securely in your browser's local storage. We do not transmit personal data to external servers.</p>
+                
+                <h3>Data Sharing</h3>
+                <p>We do not share your personal information with third parties.</p>
+                
+                <h3>Contact</h3>
+                <p>If you have questions about this privacy policy, please contact us through the game interface.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordInput = document.getElementById('password');
-            const strengthBar = document.querySelector('.strength-bar');
-            const strengthValue = document.getElementById('strength-value');
-            
-            passwordInput.addEventListener('input', function() {
-                const password = this.value;
-                let strength = calculatePasswordStrength(password);
-                
-                // Update strength bar
-                strengthBar.style.setProperty('--strength-width', `${strength}%`);
-                strengthBar.style.width = `${strength}%`;
-                
-                // Update text and color
-                if (strength < 33) {
-                    strengthBar.style.backgroundColor = '#e74c3c'; // Red
-                    strengthValue.textContent = 'Weak';
-                    strengthValue.style.color = '#e74c3c';
-                } else if (strength < 66) {
-                    strengthBar.style.backgroundColor = '#f39c12'; // Orange
-                    strengthValue.textContent = 'Medium';
-                    strengthValue.style.color = '#f39c12';
-                } else {
-                    strengthBar.style.backgroundColor = '#2ecc71'; // Green
-                    strengthValue.textContent = 'Strong';
-                    strengthValue.style.color = '#2ecc71';
+        // Modal functionality
+        const modals = document.querySelectorAll('.modal');
+        const termsLink = document.getElementById('terms-link');
+        const privacyLink = document.getElementById('privacy-link');
+        const termsModal = document.getElementById('terms-modal');
+        const privacyModal = document.getElementById('privacy-modal');
+        const closeButtons = document.querySelectorAll('.modal-close');
+
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            termsModal.classList.add('show');
+        });
+
+        privacyLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            privacyModal.classList.add('show');
+        });
+
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modals.forEach(modal => modal.classList.remove('show'));
+            });
+        });
+
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
                 }
             });
-            
-            function calculatePasswordStrength(password) {
-                // This is a simple password strength calculator
-                // In a real application, you would use a more sophisticated algorithm
-                
-                let strength = 0;
-                
-                // Length contribution
-                if (password.length >= 8) {
-                    strength += 25;
-                } else {
-                    strength += (password.length / 8) * 25;
-                }
-                
-                // Complexity contribution
-                if (/[A-Z]/.test(password)) strength += 15; // Uppercase
-                if (/[a-z]/.test(password)) strength += 15; // Lowercase
-                if (/[0-9]/.test(password)) strength += 15; // Numbers
-                if (/[^A-Za-z0-9]/.test(password)) strength += 15; // Special chars
-                
-                // Variety contribution
-                const uniqueChars = new Set(password).size;
-                const varietyContribution = (uniqueChars / password.length) * 15;
-                strength += varietyContribution;
-                
-                return Math.min(100, strength);
-            }
         });
     </script>
-    
     <script src="../js/auth.js"></script>
 </body>
 </html>

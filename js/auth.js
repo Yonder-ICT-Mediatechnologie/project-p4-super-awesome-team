@@ -1,4 +1,4 @@
-// Enhanced auth.js - Improved Authentication functionality for Hangman Game
+// Enhanced auth.js - Database-powered Authentication for Hangman Game
 
 document.addEventListener('DOMContentLoaded', function() {
     // Check which form we're on
@@ -60,25 +60,26 @@ function addFormAnimations(form) {
 function validatePasswordMatch(passwordInput, confirmPasswordInput) {
     if (passwordInput.value !== confirmPasswordInput.value) {
         confirmPasswordInput.setCustomValidity("Passwords do not match");
-        confirmPasswordInput.style.borderColor = 'var(--error-color)';
+        confirmPasswordInput.style.borderColor = '#e74c3c';
     } else {
         confirmPasswordInput.setCustomValidity('');
-        confirmPasswordInput.style.borderColor = 'var(--success-color)';
+        confirmPasswordInput.style.borderColor = '#2DCE89';
     }
 }
 
 /**
- * Handle login form submission
+ * Handle login form submission with database
  */
 function handleLogin(event) {
     event.preventDefault();
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const rememberMe = document.getElementById('remember')?.checked || false;
+    const rememberMeCheckbox = document.getElementById('remember-me');
+    const rememberMe = rememberMeCheckbox ? rememberMeCheckbox.checked : false;
     
     // Show loading state
-    const submitButton = document.querySelector('.btn-login');
+    const submitButton = event.target.querySelector('.btn, button[type="submit"]');
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Logging in...';
     submitButton.disabled = true;
@@ -90,20 +91,25 @@ function handleLogin(event) {
         return;
     }
     
-    // For Sprint 1, we'll check if the user exists in localStorage
-    // In future sprints, this would be an API call
-    setTimeout(() => {
-        const users = JSON.parse(localStorage.getItem('hangmanUsers')) || [];
-        const user = users.find(u => u.username === username && u.password === password);
-        
-        if (user) {
-            // Set the logged in user in localStorage
-            localStorage.setItem('hangmanCurrentUser', JSON.stringify({
-                username: user.username,
-                email: user.email,
-                id: users.indexOf(user) + 1, // Simple ID for tracking
-                rememberMe: rememberMe
-            }));
+    // Send login request to API
+    fetch('../api/auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'login',
+            username: username,
+            password: password,
+            rememberMe: rememberMe
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Store session token in localStorage
+            localStorage.setItem('hangmanSessionToken', data.sessionToken);
+            localStorage.setItem('hangmanCurrentUser', JSON.stringify(data.user));
             
             // Show success message
             showNotification('Login successful! Redirecting...', 'success');
@@ -113,7 +119,7 @@ function handleLogin(event) {
                 window.location.href = 'game.html';
             }, 1000);
         } else {
-            showNotification('Invalid username or password. Please try again.', 'error');
+            showNotification(data.message || 'Login failed. Please try again.', 'error');
             resetButton(submitButton, originalButtonText);
             
             // Shake the form to indicate error
@@ -123,11 +129,16 @@ function handleLogin(event) {
                 form.classList.remove('shake');
             }, 500);
         }
-    }, 800); // Simulate network delay
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        showNotification('Login failed. Please check your connection and try again.', 'error');
+        resetButton(submitButton, originalButtonText);
+    });
 }
 
 /**
- * Handle registration form submission
+ * Handle registration form submission with database
  */
 function handleRegistration(event) {
     event.preventDefault();
@@ -139,7 +150,7 @@ function handleRegistration(event) {
     const acceptedTerms = document.getElementById('terms')?.checked || false;
     
     // Show loading state
-    const submitButton = document.querySelector('.btn-register');
+    const submitButton = event.target.querySelector('.btn, button[type="submit"]');
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Creating account...';
     submitButton.disabled = true;
@@ -178,313 +189,153 @@ function handleRegistration(event) {
         return;
     }
     
-    // Simulate API call delay
-    setTimeout(() => {
-        // Get existing users or initialize empty array
-        const users = JSON.parse(localStorage.getItem('hangmanUsers')) || [];
-        
-        // Check if username already exists
-        if (users.some(user => user.username === username)) {
-            showNotification('Username already exists. Please choose a different one.', 'error');
+    // Send registration request to API
+    fetch('../api/auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'register',
+            username: username,
+            email: email,
+            password: password
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Registration successful! Please login with your credentials.', 'success');
+            
+            // Redirect to login page after a short delay
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        } else {
+            showNotification(data.message || 'Registration failed. Please try again.', 'error');
             resetButton(submitButton, originalButtonText);
-            return;
         }
-        
-        // Check if email already exists
-        if (users.some(user => user.email === email)) {
-            showNotification('Email already registered. Please use a different email or login.', 'error');
-            resetButton(submitButton, originalButtonText);
-            return;
-        }
-        
-        // Add new user
-        users.push({
-            username,
-            email,
-            password,
-            dateRegistered: new Date().toISOString()
-        });
-        
-        // Save to localStorage
-        localStorage.setItem('hangmanUsers', JSON.stringify(users));
-        
-        // Auto-login the new user
-        localStorage.setItem('hangmanCurrentUser', JSON.stringify({
-            username,
-            email,
-            id: users.length, // Simple ID for tracking
-            rememberMe: false
-        }));
-        
-        // Show success message
-        showNotification('Registration successful! Redirecting to game...', 'success');
-        
-        // Redirect after a short delay
-        setTimeout(() => {
-            window.location.href = 'game.html';
-        }, 1500);
-        
-    }, 1000); // Simulate network delay
+    })
+    .catch(error => {
+        console.error('Registration error:', error);
+        showNotification('Registration failed. Please check your connection and try again.', 'error');
+        resetButton(submitButton, originalButtonText);
+    });
 }
 
 /**
- * Handle logout
+ * Handle logout with database session cleanup
  */
 function handleLogout(event) {
     event.preventDefault();
     
-    // Show confirmation modal
-    showConfirmation(
-        'Logout',
-        'Are you sure you want to logout?',
-        'Yes, logout',
-        'Cancel',
-        () => {
-            // Remove the current user from localStorage
-            localStorage.removeItem('hangmanCurrentUser');
-            
-            // Show success message
-            showNotification('You have been logged out successfully.', 'success');
-            
-            // Redirect to home page after a short delay
-            setTimeout(() => {
-                const isInPagesDirectory = window.location.pathname.includes('/pages/');
-                if (isInPagesDirectory) {
-                    window.location.href = '../index.html';
-                } else {
-                    window.location.href = 'index.html';
-                }
-            }, 1000);
-        }
-    );
+    const sessionToken = localStorage.getItem('hangmanSessionToken');
+    
+    // Send logout request to API
+    fetch('../api/auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'logout',
+            sessionToken: sessionToken
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Clear local storage regardless of API response
+        localStorage.removeItem('hangmanSessionToken');
+        localStorage.removeItem('hangmanCurrentUser');
+        
+        showNotification('Logged out successfully!', 'success');
+        
+        // Redirect to home page
+        setTimeout(() => {
+            window.location.href = '../index.html';
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Logout error:', error);
+        // Still clear local storage even if API fails
+        localStorage.removeItem('hangmanSessionToken');
+        localStorage.removeItem('hangmanCurrentUser');
+        
+        showNotification('Logged out successfully!', 'success');
+        setTimeout(() => {
+            window.location.href = '../index.html';
+        }, 1000);
+    });
 }
 
 /**
- * Show a notification message
- * @param {string} message - Message to display
- * @param {string} type - Message type ('success', 'error', 'info')
+ * Show notification message
  */
 function showNotification(message, type = 'info') {
-    // Remove any existing notification
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
+    // Remove any existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
     
-    // Create notification element
     const notification = document.createElement('div');
-    notification.classList.add('notification', type);
-    notification.innerHTML = `
-        <div class="notification-content">
-            <p>${message}</p>
-        </div>
-        <button class="notification-close">&times;</button>
-    `;
+    notification.className = `notification ${type}`;
     
-    // Add to document
+    const notificationContent = document.createElement('div');
+    notificationContent.className = 'notification-content';
+    
+    const icon = document.createElement('span');
+    icon.className = 'notification-icon';
+    icon.innerHTML = getNotificationIcon(type);
+    
+    const messageEl = document.createElement('span');
+    messageEl.className = 'notification-message';
+    messageEl.textContent = message;
+    
+    const closeButton = document.createElement('button');
+    closeButton.className = 'notification-close';
+    closeButton.innerHTML = '&times;';
+    closeButton.addEventListener('click', () => hideNotification(notification));
+    
+    notificationContent.appendChild(icon);
+    notificationContent.appendChild(messageEl);
+    notificationContent.appendChild(closeButton);
+    notification.appendChild(notificationContent);
+    
     document.body.appendChild(notification);
     
-    // Show with animation
+    // Show the notification
     setTimeout(() => {
         notification.classList.add('show');
-    }, 10);
-    
-    // Add close button functionality
-    const closeButton = notification.querySelector('.notification-close');
-    closeButton.addEventListener('click', () => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    });
+    }, 100);
     
     // Auto-hide after 5 seconds
     setTimeout(() => {
-        if (document.contains(notification)) {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                if (document.contains(notification)) {
-                    notification.remove();
-                }
-            }, 300);
-        }
+        hideNotification(notification);
     }, 5000);
-    
-    // Add notification styles if not already present
-    if (!document.getElementById('notification-styles')) {
-        const styleTag = document.createElement('style');
-        styleTag.id = 'notification-styles';
-        styleTag.textContent = `
-            .notification {
-                position: fixed;
-                top: 1rem;
-                right: 1rem;
-                max-width: 300px;
-                background-color: white;
-                border-radius: 4px;
-                padding: 0.75rem 1rem;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-                transform: translateX(120%);
-                transition: transform 0.3s ease;
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            
-            .notification.show {
-                transform: translateX(0);
-            }
-            
-            .notification-content {
-                margin-right: 0.5rem;
-            }
-            
-            .notification-close {
-                background: none;
-                border: none;
-                font-size: 1.2rem;
-                cursor: pointer;
-                color: #777;
-            }
-            
-            .notification.success {
-                border-left: 4px solid var(--success-color);
-            }
-            
-            .notification.error {
-                border-left: 4px solid var(--error-color);
-            }
-            
-            .notification.info {
-                border-left: 4px solid var(--primary-color);
-            }
-        `;
-        document.head.appendChild(styleTag);
-    }
 }
 
 /**
- * Show a confirmation dialog
+ * Get notification icon based on type
  */
-function showConfirmation(title, message, confirmText, cancelText, onConfirm) {
-    // Create modal overlay
-    const modalOverlay = document.createElement('div');
-    modalOverlay.classList.add('modal-overlay');
-    
-    // Create modal content
-    const modal = document.createElement('div');
-    modal.classList.add('confirmation-modal');
-    
-    modal.innerHTML = `
-        <h3>${title}</h3>
-        <p>${message}</p>
-        <div class="modal-buttons">
-            <button class="btn btn-cancel">${cancelText}</button>
-            <button class="btn btn-confirm">${confirmText}</button>
-        </div>
-    `;
-    
-    // Add to document
-    modalOverlay.appendChild(modal);
-    document.body.appendChild(modalOverlay);
-    
-    // Show with animation
+function getNotificationIcon(type) {
+    const icons = {
+        success: '✓',
+        error: '✗',
+        warning: '⚠',
+        info: 'i'
+    };
+    return icons[type] || icons.info;
+}
+
+/**
+ * Hide notification
+ */
+function hideNotification(notification) {
+    notification.classList.remove('show');
     setTimeout(() => {
-        modalOverlay.classList.add('show');
-        modal.classList.add('show');
-    }, 10);
-    
-    // Add event listeners
-    const confirmButton = modal.querySelector('.btn-confirm');
-    const cancelButton = modal.querySelector('.btn-cancel');
-    
-    confirmButton.addEventListener('click', () => {
-        closeModal();
-        if (typeof onConfirm === 'function') {
-            onConfirm();
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
         }
-    });
-    
-    cancelButton.addEventListener('click', closeModal);
-    modalOverlay.addEventListener('click', function(event) {
-        if (event.target === modalOverlay) {
-            closeModal();
-        }
-    });
-    
-    // Close modal function
-    function closeModal() {
-        modalOverlay.classList.remove('show');
-        modal.classList.remove('show');
-        setTimeout(() => {
-            modalOverlay.remove();
-        }, 300);
-    }
-    
-    // Add modal styles if not already present
-    if (!document.getElementById('modal-styles')) {
-        const styleTag = document.createElement('style');
-        styleTag.id = 'modal-styles';
-        styleTag.textContent = `
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
-                transition: background-color 0.3s ease;
-            }
-            
-            .modal-overlay.show {
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-            
-            .confirmation-modal {
-                background-color: white;
-                border-radius: 8px;
-                padding: 1.5rem;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-                max-width: 90%;
-                width: 400px;
-                transform: scale(0.8);
-                opacity: 0;
-                transition: all 0.3s ease;
-            }
-            
-            .confirmation-modal.show {
-                transform: scale(1);
-                opacity: 1;
-            }
-            
-            .confirmation-modal h3 {
-                margin-top: 0;
-                color: var(--primary-color);
-            }
-            
-            .modal-buttons {
-                display: flex;
-                justify-content: flex-end;
-                gap: 0.5rem;
-                margin-top: 1.5rem;
-            }
-            
-            .btn-cancel {
-                background-color: #f1f1f1;
-                color: #333;
-            }
-            
-            .btn-confirm {
-                background-color: var(--primary-color);
-            }
-        `;
-        document.head.appendChild(styleTag);
-    }
+    }, 300);
 }
 
 /**
@@ -496,54 +347,60 @@ function resetButton(button, originalText) {
 }
 
 /**
- * Check if user is logged in and handle redirections
+ * Check if user is logged in with database verification
  */
 function checkCurrentUser() {
-    const currentUser = localStorage.getItem('hangmanCurrentUser');
-    const isLoginPage = window.location.pathname.includes('login.html');
-    const isRegisterPage = window.location.pathname.includes('register.html');
-    const isAuthPage = isLoginPage || isRegisterPage;
+    const sessionToken = localStorage.getItem('hangmanSessionToken');
     
-    // Update UI for authenticated user
-    if (currentUser) {
-        const user = JSON.parse(currentUser);
-        
-        // If on login or register page, redirect to game
-        if (isAuthPage) {
-            window.location.href = 'game.html';
-            return;
-        }
-        
-        // Update avatar initial if on stats page
-        const avatarInitial = document.getElementById('avatar-initial');
-        if (avatarInitial) {
-            avatarInitial.textContent = user.username.charAt(0).toUpperCase();
-        }
-    } else {
-        // If not logged in and on a protected page
-        const isProtectedPage = 
-            window.location.pathname.includes('game.html') ||
-            window.location.pathname.includes('stats.html') ||
-            window.location.pathname.includes('leaderboard.html');
-        
-        if (isProtectedPage) {
-            // Redirect to login
-            window.location.href = 'login.html';
-        }
+    if (!sessionToken) {
+        return; // No session token, user not logged in
     }
+    
+    // Verify session with server
+    fetch('../api/auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'verify',
+            sessionToken: sessionToken
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update user data in localStorage
+            localStorage.setItem('hangmanCurrentUser', JSON.stringify(data.user));
+            console.log('User session verified:', data.user.username);
+        } else {
+            // Session invalid, clear local storage
+            localStorage.removeItem('hangmanSessionToken');
+            localStorage.removeItem('hangmanCurrentUser');
+        }
+    })
+    .catch(error => {
+        console.error('Session verification error:', error);
+        // On error, clear potentially invalid session
+        localStorage.removeItem('hangmanSessionToken');
+        localStorage.removeItem('hangmanCurrentUser');
+    });
 }
 
 /**
- * Check if user is logged in
- * This can be used on pages that require authentication
+ * Check authentication for protected pages
  */
 function checkAuth() {
+    const sessionToken = localStorage.getItem('hangmanSessionToken');
     const currentUser = localStorage.getItem('hangmanCurrentUser');
     
-    if (!currentUser) {
-        // Redirect to login page if not logged in
+    if (!sessionToken || !currentUser) {
+        // Redirect to login if not authenticated
         window.location.href = 'login.html';
+        return false;
     }
     
-    return JSON.parse(currentUser);
+    // Verify session is still valid
+    checkCurrentUser();
+    return true;
 }

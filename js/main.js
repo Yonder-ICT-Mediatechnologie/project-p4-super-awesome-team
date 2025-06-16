@@ -1,129 +1,154 @@
-// main.js - Main JavaScript for Hangman Game - Sprint 1
+// main.js - Global functionality for Hangman Game
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
-    const currentUser = localStorage.getItem('hangmanCurrentUser');
+    console.log('🌐 Global script loaded');
     
-    // Update navigation based on authentication state
-    updateNavigation(currentUser);
-    
-    // Add event listeners
-    setupEventListeners();
+    // Initialize global features
+    initializeNavigation();
+    initializeLogout();
+    initializeTheme();
 });
 
 /**
- * Update navigation based on user authentication state
+ * Initialize navigation functionality
  */
-function updateNavigation(currentUser) {
-    const navLinks = document.querySelector('nav ul');
+function initializeNavigation() {
+    // Add active class to current page navigation
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('nav a');
     
-    // Only update if nav exists on the page
-    if (navLinks) {
-        // For Sprint 1, we'll keep it simple
-        // In future sprints, this will be more dynamic
-        
-        // If we're on the index page, show different nav depending on auth state
-        if (window.location.pathname.endsWith('index.html') || 
-            window.location.pathname.endsWith('/')) {
-            
-            if (currentUser) {
-                // User is logged in
-                navLinks.innerHTML = `
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="pages/game.html">Play</a></li>
-                    <li><a href="pages/leaderboard.html">Leaderboard</a></li>
-                    <li><a href="pages/stats.html">My Stats</a></li>
-                    <li><a href="#" id="logout-link">Logout</a></li>
-                `;
-                
-                // Add logout event listener
-                const logoutLink = document.getElementById('logout-link');
-                if (logoutLink) {
-                    logoutLink.addEventListener('click', handleLogout);
-                }
-            }
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.includes(currentPage) || 
+                    (currentPage === 'index.html' && href === 'index.html'))) {
+            link.classList.add('active');
         }
-    }
+    });
 }
 
 /**
- * Set up global event listeners
+ * Initialize logout functionality
  */
-function setupEventListeners() {
-    // Logout functionality if the element exists
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', handleLogout);
-    }
-}
-
-/**
- * Handle logout action
- */
-function handleLogout(event) {
-    event.preventDefault();
+function initializeLogout() {
+    const logoutLinks = document.querySelectorAll('#logout-link, .logout-btn');
     
-    // Clear user from localStorage
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            handleLogout();
+        });
+    });
+}
+
+/**
+ * Handle user logout
+ */
+function handleLogout() {
+    // Clear user data
     localStorage.removeItem('hangmanCurrentUser');
     
+    // Show logout message
+    console.log('👋 User logged out');
+    
     // Redirect to home page
-    const isInPagesDirectory = window.location.pathname.includes('/pages/');
-    if (isInPagesDirectory) {
+    const isInSubDirectory = window.location.pathname.includes('pages/');
+    if (isInSubDirectory) {
         window.location.href = '../index.html';
     } else {
         window.location.href = 'index.html';
     }
 }
-// Add this to your main.js file
-document.addEventListener('DOMContentLoaded', function() {
-    // Specific fix for logout functionality
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            // Clear the current user from localStorage
-            localStorage.removeItem('hangmanCurrentUser');
-            // Redirect to index.html
-            window.location.href = 'index.html';
-        });
-    }
-});
 
 /**
- * Animation and visual effects research for future sprints
- * This function contains notes about the animation libraries considered for the project
+ * Initialize theme and visual preferences
  */
-function animationNotes() {
-    // For Sprint 1, we're researching animation options
-    // These are the libraries we're considering:
+function initializeTheme() {
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('hangmanTheme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
     
-    /*
-    1. GSAP (GreenSock Animation Platform)
-       - Pros: Powerful, smooth animations, great browser support
-       - Cons: Commercial license for advanced features
-       - Website: https://greensock.com/
-       
-    2. Anime.js
-       - Pros: Lightweight, flexible, good for SVG animations
-       - Cons: Less comprehensive than GSAP
-       - Website: https://animejs.com/
-       
-    3. Mo.js
-       - Pros: Great for motion graphics, unique effects
-       - Cons: Steeper learning curve
-       - Website: https://mojs.github.io/
-       
-    4. Lottie
-       - Pros: Can use After Effects animations on web
-       - Cons: Requires animation files created in After Effects
-       - Website: https://airbnb.design/lottie/
-       
-    5. CSS Animations (no library)
-       - Pros: No external dependencies, good browser support
-       - Cons: Limited complexity, harder to sequence
-       
-    Decision for Sprint 2:
-    For the Hangman game, we'll likely use a combination of CSS animations for simple effects
-    and Anime.js for more complex animations like the hangman figure drawing and game transitions.
-    */
+    // Check for reduced motion preference
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('reduce-motion');
+    }
 }
+
+/**
+ * Utility function to show notifications
+ */
+function showNotification(message, type = 'info', duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // Style the notification
+    Object.assign(notification.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        padding: '1rem 1.5rem',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: '600',
+        zIndex: '9999',
+        opacity: '0',
+        transform: 'translateX(100%)',
+        transition: 'all 0.3s ease'
+    });
+    
+    // Set background color based on type
+    const colors = {
+        info: '#3b82f6',
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b'
+    };
+    notification.style.backgroundColor = colors[type] || colors.info;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Remove after duration
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, duration);
+}
+
+/**
+ * Utility function to check if user is logged in
+ */
+function getCurrentUser() {
+    const userData = localStorage.getItem('hangmanCurrentUser');
+    return userData ? JSON.parse(userData) : null;
+}
+
+/**
+ * Utility function to format timestamps
+ */
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+// Export functions for use in other scripts
+window.HangmanGlobal = {
+    showNotification,
+    getCurrentUser,
+    formatTimestamp,
+    handleLogout
+};
+
+console.log('✅ Global utilities loaded');
