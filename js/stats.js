@@ -1,63 +1,65 @@
-// Enhanced stats.js - Improved Statistics functionality for Hangman Game
-
+// Stats page for Hangman Game - Database-driven
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
-    const currentUser = checkUserLoggedIn();
-    
-    if (currentUser) {
-        // Load player profile
-        loadPlayerProfile(currentUser);
-        
-        // Load game statistics
-        loadGameStats(currentUser);
-        
-        // Load recent games
-        loadRecentGames(currentUser);
-        
-        // Load achievements
-        loadAchievements(currentUser);
-        
-
-    }
-    
-    // Add animation classes
+    console.log('Stats page loaded');
     addAnimations();
+    checkUserLoggedIn();
 });
 
 /**
- * Check if the user is logged in
- * @returns {Object|null} The current user object or null
+ * Check if user is logged in
  */
 function checkUserLoggedIn() {
+    const sessionToken = localStorage.getItem('hangmanSessionToken');
     const currentUser = localStorage.getItem('hangmanCurrentUser');
     
-    if (currentUser) {
-        const userObj = JSON.parse(currentUser);
-        console.log('User is logged in:', userObj.username);
-        return userObj;
-    } else {
-        console.log('User is not logged in');
+    if (!sessionToken || !currentUser) {
+        console.log('User not logged in, redirecting to login');
         window.location.href = 'login.html';
-        return null;
+        return;
     }
+    
+    // Verify session with server
+    fetch('../api/auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'verify',
+            sessionToken: sessionToken
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const user = data.user;
+            loadPlayerProfile(user);
+            loadGameStatsFromDatabase(user, sessionToken);
+        } else {
+            // Session invalid, redirect to login
+            localStorage.removeItem('hangmanSessionToken');
+            localStorage.removeItem('hangmanCurrentUser');
+            window.location.href = 'login.html';
+        }
+    })
+    .catch(error => {
+        console.error('Session verification error:', error);
+        window.location.href = 'login.html';
+    });
 }
 
 /**
  * Load player profile information
- * @param {Object} user - User object
+ * @param {Object} user - User object from database
  */
 function loadPlayerProfile(user) {
     // Display username
     document.getElementById('player-username').textContent = user.username;
     
-    // Get registered date from localStorage
-    const users = JSON.parse(localStorage.getItem('hangmanUsers')) || [];
-    const userInfo = users.find(u => u.username === user.username);
-    
-    let joinDate = 'April 5, 2025';
-    if (userInfo && userInfo.dateRegistered) {
-        // Format the date nicely
-        const date = new Date(userInfo.dateRegistered);
+    // Display join date (this would come from user.created_at in the database)
+    let joinDate = 'Recently';
+    if (user.created_at) {
+        const date = new Date(user.created_at);
         joinDate = date.toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
@@ -65,48 +67,62 @@ function loadPlayerProfile(user) {
         });
     }
     
-    // Display join date
     document.getElementById('player-joined-date').textContent = joinDate;
 }
 
 /**
- * Load game statistics from localStorage
+ * Load game statistics from database
  * @param {Object} user - User object
+ * @param {string} sessionToken - Session token
  */
-function loadGameStats(user) {
-    console.log('Loading stats for user:', user.username);
-    loadGameStatsFromLocalStorage(user);
+function loadGameStatsFromDatabase(user, sessionToken) {
+    fetch('../api/game.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'getUserStats',
+            sessionToken: sessionToken
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayStats(data.stats);
+            loadRecentGamesFromDatabase(sessionToken);
+        } else {
+            console.error('Failed to load stats:', data.message);
+            // Fallback to localStorage if database fails
+            loadGameStatsFromLocalStorage(user);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading stats:', error);
+        // Fallback to localStorage if database fails
+        loadGameStatsFromLocalStorage(user);
+    });
 }
 
 /**
- * Load stats from localStorage
+ * Display statistics on the page
+ * @param {Object} stats - Statistics object
  */
-function loadGameStatsFromLocalStorage(user) {
-    const stats = JSON.parse(localStorage.getItem('hangmanStats')) || {};
-    const userStats = stats[user.username] || {
-        totalGames: 0,
-        gamesWon: 0,
-        winRate: 0,
-        streak: 0,
-        bestStreak: 0,
-        totalScore: 0,
-        bestScore: 0
-    };
+function displayStats(stats) {
+    console.log('Displaying stats:', stats);
     
-    console.log('User stats from localStorage:', userStats);
-    
-    // Display stats
-    document.getElementById('total-games').textContent = userStats.totalGames;
-    document.getElementById('games-won').textContent = userStats.gamesWon;
-    document.getElementById('win-rate').textContent = userStats.winRate + '%';
+    // Display main stats
+    document.getElementById('total-games').textContent = stats.total_games || 0;
+    document.getElementById('games-won').textContent = stats.games_won || 0;
+    document.getElementById('win-rate').textContent = (stats.win_rate || 0) + '%';
     
     // Calculate average score
-    const avgScore = userStats.totalGames > 0 ? 
-        Math.round(userStats.totalScore / userStats.totalGames) : 0;
+    const avgScore = stats.total_games > 0 ? 
+        Math.round((stats.total_score || 0) / stats.total_games) : 0;
     
     const additionalStats = {
-        'current-streak': userStats.streak || 0,
-        'best-streak': userStats.bestStreak || 0,
+        'current-streak': stats.current_streak || 0,
+        'best-streak': stats.best_streak || 0,
         'avg-score': avgScore,
         'week-streak': 0, // These would need more complex calculation
         'month-streak': 0
@@ -119,15 +135,46 @@ function loadGameStatsFromLocalStorage(user) {
         }
     }
     
-    // Load recent games from localStorage
-    loadRecentGames(user);
+    // Load achievements
+    loadAchievementsFromStats(stats);
 }
 
 /**
- * Load recent games from API data
- * @param {Array} recentGames - Recent games from API
+ * Load recent games from database
+ * @param {string} sessionToken - Session token
  */
-function loadRecentGamesFromAPI(recentGames) {
+function loadRecentGamesFromDatabase(sessionToken) {
+    fetch('../api/game.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'getUserHistory',
+            sessionToken: sessionToken,
+            limit: 10
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayRecentGames(data.history);
+        } else {
+            console.error('Failed to load game history:', data.message);
+            displayRecentGames([]);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading game history:', error);
+        displayRecentGames([]);
+    });
+}
+
+/**
+ * Display recent games
+ * @param {Array} recentGames - Recent games from database
+ */
+function displayRecentGames(recentGames) {
     const recentGamesTableBody = document.getElementById('recent-games-data');
     
     // Clear existing data
@@ -144,21 +191,19 @@ function loadRecentGamesFromAPI(recentGames) {
             const row = document.createElement('tr');
             
             // Format date
-            const date = new Date(game.date_played);
+            const date = new Date(game.played_at);
             const formattedDate = date.toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'short', 
                 day: 'numeric' 
             });
             
-            const result = game.won ? 'Won' : 'Lost';
-            
             row.innerHTML = `
                 <td>${formattedDate}</td>
                 <td>${game.word}</td>
                 <td>${game.score}</td>
-                <td>${game.attempts}/6</td>
-                <td class="${game.won ? 'win' : 'loss'}">${result}</td>
+                <td>${game.attempts_used}/6</td>
+                <td class="${game.result === 'Won' ? 'win' : 'loss'}">${game.result}</td>
             `;
             
             recentGamesTableBody.appendChild(row);
@@ -167,11 +212,105 @@ function loadRecentGamesFromAPI(recentGames) {
 }
 
 /**
- * Load recent games data (fallback)
- * @param {Object} user - User object
+ * Load user achievements based on stats
+ * @param {Object} stats - User statistics
  */
-function loadRecentGames(user) {
-    // This function is now a fallback when API data is not loaded
+function loadAchievementsFromStats(stats) {
+    // Define achievements
+    const achievements = [
+        {
+            id: 'first-win',
+            title: 'First Win',
+            description: 'Win your first game',
+            isUnlocked: (stats.games_won || 0) > 0,
+            icon: '🏆'
+        },
+        {
+            id: 'word-master',
+            title: 'Word Master',
+            description: 'Win 10 games in total',
+            isUnlocked: (stats.games_won || 0) >= 10,
+            icon: '📚'
+        },
+        {
+            id: 'streak-master',
+            title: 'Streak Master',
+            description: 'Win 5 games in a row',
+            isUnlocked: (stats.best_streak || 0) >= 5,
+            icon: '🔥'
+        },
+        {
+            id: 'hangman-expert',
+            title: 'Hangman Expert',
+            description: 'Play 25 games total',
+            isUnlocked: (stats.total_games || 0) >= 25,
+            icon: '🎮'
+        },
+        {
+            id: 'score-hunter',
+            title: 'Score Hunter',
+            description: 'Achieve a score of 100 or higher',
+            isUnlocked: (stats.best_score || 0) >= 100,
+            icon: '💯'
+        },
+        {
+            id: 'consistency',
+            title: 'Consistency',
+            description: 'Maintain a 70% win rate over 10+ games',
+            isUnlocked: (stats.total_games || 0) >= 10 && (stats.win_rate || 0) >= 70,
+            icon: '⚖️'
+        }
+    ];
+    
+    displayAchievements(achievements);
+}
+
+/**
+ * Display achievements
+ * @param {Array} achievements - Array of achievement objects
+ */
+function displayAchievements(achievements) {
+    const achievementsGrid = document.getElementById('achievements-container');
+    achievementsGrid.innerHTML = '';
+    
+    achievements.forEach(achievement => {
+        const achievementCard = document.createElement('div');
+        achievementCard.className = `achievement ${achievement.isUnlocked ? 'unlocked' : 'locked'}`;
+        
+        achievementCard.innerHTML = `
+            <div class="achievement-icon">${achievement.icon}</div>
+            <h4>${achievement.title}</h4>
+            <p>${achievement.description}</p>
+        `;
+        
+        achievementsGrid.appendChild(achievementCard);
+    });
+}
+
+/**
+ * FALLBACK: Load stats from localStorage (only used if database fails)
+ */
+function loadGameStatsFromLocalStorage(user) {
+    const stats = JSON.parse(localStorage.getItem('hangmanStats')) || {};
+    const userStats = stats[user.username] || {
+        total_games: 0,
+        games_won: 0,
+        win_rate: 0,
+        current_streak: 0,
+        best_streak: 0,
+        total_score: 0,
+        best_score: 0
+    };
+    
+    console.log('Using localStorage fallback for stats:', userStats);
+    displayStats(userStats);
+    loadRecentGamesFromLocalStorage(user);
+}
+
+/**
+ * FALLBACK: Load recent games from localStorage
+ */
+function loadRecentGamesFromLocalStorage(user) {
     const scores = JSON.parse(localStorage.getItem('hangmanScores')) || [];
     
     // Filter scores for current user and sort by date (most recent first)
@@ -182,125 +321,23 @@ function loadRecentGames(user) {
     // Limit to the most recent 10 games
     const recentGames = userScores.slice(0, 10);
     
-    loadRecentGamesFromAPI(recentGames.map(game => ({
-        date_played: game.date,
+    displayRecentGames(recentGames.map(game => ({
+        played_at: game.date,
         word: game.word,
         score: game.score || 0,
-        attempts: game.attemptsUsed,
-        won: game.result === 'Won'
+        attempts_used: game.attemptsUsed,
+        result: game.result
     })));
 }
-
-/**
- * Load user achievements
- * @param {Object} user - User object
- */
-function loadAchievements(user) {
-    // Get stats from localStorage
-    const stats = JSON.parse(localStorage.getItem('hangmanStats')) || {};
-    const userStats = stats[user.username] || { totalGames: 0, gamesWon: 0 };
-    
-    // Get scores from localStorage
-    const scores = JSON.parse(localStorage.getItem('hangmanScores')) || [];
-    const userScores = scores.filter(score => score.username === user.username);
-    
-    // Define achievements
-    const achievements = [
-        {
-            id: 'first-win',
-            title: 'First Win',
-            description: 'Win your first game',
-            isUnlocked: userStats.gamesWon > 0,
-            icon: '🏆'
-        },
-        {
-            id: 'perfect-game',
-            title: 'Perfect Game',
-            description: 'Win a game without any incorrect guesses',
-            isUnlocked: userScores.some(score => score.result === 'Won' && score.attemptsUsed === 0),
-            icon: '✨'
-        },
-        {
-            id: 'word-master',
-            title: 'Word Master',
-            description: 'Win 10 games in total',
-            isUnlocked: userStats.gamesWon >= 10,
-            icon: '📚'
-        },
-        {
-            id: 'quick-thinker',
-            title: 'Quick Thinker',
-            description: 'Win a game in under 30 seconds',
-            isUnlocked: userScores.some(score => score.result === 'Won' && score.time < 30),
-            icon: '⚡'
-        },
-        {
-            id: 'streak-master',
-            title: 'Streak Master',
-            description: 'Win 5 games in a row',
-            isUnlocked: userStats.bestStreak >= 5,
-            icon: '🔥'
-        },
-        {
-            id: 'hangman-expert',
-            title: 'Hangman Expert',
-            description: 'Play 25 games total',
-            isUnlocked: userStats.totalGames >= 25,
-            icon: '🎮'
-        }
-    ];
-    
-    // Display achievements
-    const achievementsContainer = document.getElementById('achievements-container');
-    
-    // Clear existing achievements
-    achievementsContainer.innerHTML = '';
-    
-    // Add achievement cards
-    achievements.forEach(achievement => {
-        const card = document.createElement('div');
-        card.classList.add('achievement');
-        
-        if (achievement.isUnlocked) {
-            card.classList.add('unlocked');
-        }
-        
-        card.innerHTML = `
-            <div class="achievement-icon">${achievement.icon}</div>
-            <h4>${achievement.title}</h4>
-            <p>${achievement.description}</p>
-            <span class="achievement-status ${achievement.isUnlocked ? 'unlocked' : 'locked'}">
-                ${achievement.isUnlocked ? 'Unlocked' : 'Locked'}
-            </span>
-        `;
-        
-        achievementsContainer.appendChild(card);
-    });
-}
-
-
 
 /**
  * Add animations to the page elements
  */
 function addAnimations() {
-    // Add fade-in animation to statistics boxes
-    const statBoxes = document.querySelectorAll('.stat-box');
-    statBoxes.forEach((box, index) => {
-        box.classList.add('fade-in');
-        box.style.animationDelay = `${index * 0.1}s`;
-    });
+    const elements = document.querySelectorAll('.stat-card, .achievement-card, .recent-games');
     
-    // Add animations to achievements
-    const achievements = document.querySelectorAll('.achievement');
-    achievements.forEach((achievement, index) => {
-        achievement.classList.add('slide-in');
-        achievement.style.animationDelay = `${0.3 + index * 0.1}s`;
-    });
-    
-    // Add floating animation to unlocked achievements
-    const unlockedAchievements = document.querySelectorAll('.achievement.unlocked');
-    unlockedAchievements.forEach(achievement => {
-        achievement.classList.add('float');
+    elements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+        element.classList.add('fade-in');
     });
 }

@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Don't display errors in browser, log them instead
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -9,101 +13,121 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
-require_once '../config/database.php';
-
-// Get database connection
-$database = new Database();
-$db = $database->getConnection();
-
-// Get the request method and data
-$method = $_SERVER['REQUEST_METHOD'];
-$input = json_decode(file_get_contents('php://input'), true);
-
-// Route the request
-switch ($method) {
-    case 'POST':
-        if (isset($input['action'])) {
-            switch ($input['action']) {
-                case 'register':
-                    register($db, $input);
-                    break;
-                case 'login':
-                    login($db, $input);
-                    break;
-                case 'logout':
-                    logout($db, $input);
-                    break;
-                case 'verify':
-                    verifySession($db, $input);
-                    break;
-                default:
-                    echo json_encode(['success' => false, 'message' => 'Invalid action']);
+try {
+    require_once '../config/database.php';
+    
+    // Get database connection
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    if (!$db) {
+        echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+        exit;
+    }
+    
+    // Get the request method and data
+    $method = $_SERVER['REQUEST_METHOD'];
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    // Check if JSON decode was successful
+    if ($input === null && json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode(['success' => false, 'message' => 'Invalid JSON data']);
+        exit;
+    }
+    
+    // Route the request
+    switch ($method) {
+        case 'POST':
+            if (isset($input['action'])) {
+                switch ($input['action']) {
+                    case 'register':
+                        register($db, $input);
+                        break;
+                    case 'login':
+                        login($db, $input);
+                        break;
+                    case 'logout':
+                        logout($db, $input);
+                        break;
+                    case 'verify':
+                        verifySession($db, $input);
+                        break;
+                    default:
+                        echo json_encode(['success' => false, 'message' => 'Invalid action']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'No action specified']);
             }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'No action specified']);
-        }
-        break;
-    default:
-        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            break;
+        default:
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    }
+    
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
 }
 
 // Register function
 function register($db, $data) {
-    $username = trim($data['username'] ?? '');
-    $email = trim($data['email'] ?? '');
-    $password = $data['password'] ?? '';
-    
-    // Validation
-    if (empty($username) || empty($email) || empty($password)) {
-        echo json_encode(['success' => false, 'message' => 'All fields are required']);
-        return;
-    }
-    
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid email address']);
-        return;
-    }
-    
-    if (strlen($password) < 6) {
-        echo json_encode(['success' => false, 'message' => 'Password must be at least 6 characters long']);
-        return;
-    }
-    
-    // Check if username exists
-    $query = "SELECT id FROM users WHERE username = :username";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':username', $username);
-    $stmt->execute();
-    
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['success' => false, 'message' => 'Username already exists']);
-        return;
-    }
-    
-    // Check if email exists
-    $query = "SELECT id FROM users WHERE email = :email";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':email', $email);
-    $stmt->execute();
-    
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['success' => false, 'message' => 'Email already registered']);
-        return;
-    }
-    
-    // Hash password and create user
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    
-    $query = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':password', $hashedPassword);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Registration successful']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Registration failed']);
+    try {
+        $username = trim($data['username'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? '';
+        
+        // Validation
+        if (empty($username) || empty($email) || empty($password)) {
+            echo json_encode(['success' => false, 'message' => 'All fields are required']);
+            return;
+        }
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email address']);
+            return;
+        }
+        
+        if (strlen($password) < 6) {
+            echo json_encode(['success' => false, 'message' => 'Password must be at least 6 characters long']);
+            return;
+        }
+        
+        // Check if username exists
+        $query = "SELECT id FROM users WHERE username = :username";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => false, 'message' => 'Username already exists']);
+            return;
+        }
+        
+        // Check if email exists
+        $query = "SELECT id FROM users WHERE email = :email";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => false, 'message' => 'Email already registered']);
+            return;
+        }
+        
+        // Hash password and create user
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
+        $query = "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $hashedPassword);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Registration successful']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Registration failed']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Registration error: ' . $e->getMessage()]);
     }
 }
 

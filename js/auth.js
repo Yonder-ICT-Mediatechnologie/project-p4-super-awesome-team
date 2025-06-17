@@ -1,4 +1,4 @@
-// Enhanced auth.js - Database-powered Authentication for Hangman Game
+// Database-powered Authentication for Hangman Game - NO LOCAL STORAGE
 
 document.addEventListener('DOMContentLoaded', function() {
     // Check which form we're on
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutLink.addEventListener('click', handleLogout);
     }
     
-    // Check if user is already logged in
+    // Check if user session is valid
     checkCurrentUser();
 });
 
@@ -68,7 +68,7 @@ function validatePasswordMatch(passwordInput, confirmPasswordInput) {
 }
 
 /**
- * Handle login form submission with database
+ * Handle login form submission - DATABASE ONLY
  */
 function handleLogin(event) {
     event.preventDefault();
@@ -91,7 +91,7 @@ function handleLogin(event) {
         return;
     }
     
-    // Send login request to API
+    // Send login request to DATABASE API
     fetch('../api/auth.php', {
         method: 'POST',
         headers: {
@@ -104,30 +104,45 @@ function handleLogin(event) {
             rememberMe: rememberMe
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Store session token in localStorage
-            localStorage.setItem('hangmanSessionToken', data.sessionToken);
-            localStorage.setItem('hangmanCurrentUser', JSON.stringify(data.user));
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Get response text first to see what we're getting
+        return response.text();
+    })
+    .then(text => {
+        console.log('Raw response:', text);
+        
+        // Try to parse as JSON
+        try {
+            const data = JSON.parse(text);
             
-            // Show success message
-            showNotification('Login successful! Redirecting...', 'success');
-            
-            // Redirect to game page after a short delay
-            setTimeout(() => {
-                window.location.href = 'game.html';
-            }, 1000);
-        } else {
-            showNotification(data.message || 'Login failed. Please try again.', 'error');
+            if (data.success) {
+                // Store ONLY session token and user info for current session
+                localStorage.setItem('hangmanSessionToken', data.sessionToken);
+                localStorage.setItem('hangmanCurrentUser', JSON.stringify(data.user));
+                
+                showNotification('Login successful! Redirecting...', 'success');
+                
+                // Redirect to game page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'game.html';
+                }, 1000);
+            } else {
+                showNotification(data.message || 'Login failed. Please try again.', 'error');
+                resetButton(submitButton, originalButtonText);
+            }
+        } catch (jsonError) {
+            console.error('JSON parse error:', jsonError);
+            console.log('Response was not valid JSON:', text);
+            showNotification('Server returned invalid response. Please try again.', 'error');
             resetButton(submitButton, originalButtonText);
-            
-            // Shake the form to indicate error
-            const form = document.getElementById('login-form');
-            form.classList.add('shake');
-            setTimeout(() => {
-                form.classList.remove('shake');
-            }, 500);
         }
     })
     .catch(error => {
@@ -138,7 +153,7 @@ function handleLogin(event) {
 }
 
 /**
- * Handle registration form submission with database
+ * Handle registration form submission - DATABASE ONLY
  */
 function handleRegistration(event) {
     event.preventDefault();
@@ -189,7 +204,7 @@ function handleRegistration(event) {
         return;
     }
     
-    // Send registration request to API
+    // Send registration request to DATABASE API
     fetch('../api/auth.php', {
         method: 'POST',
         headers: {
@@ -224,48 +239,61 @@ function handleRegistration(event) {
 }
 
 /**
- * Handle logout with database session cleanup
+ * Handle logout - DATABASE SESSION CLEANUP
  */
 function handleLogout(event) {
     event.preventDefault();
     
     const sessionToken = localStorage.getItem('hangmanSessionToken');
     
-    // Send logout request to API
-    fetch('../api/auth.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            action: 'logout',
-            sessionToken: sessionToken
+    // Send logout request to DATABASE API to invalidate session
+    if (sessionToken) {
+        fetch('../api/auth.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'logout',
+                sessionToken: sessionToken
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Clear local storage regardless of API response
+        .then(response => response.json())
+        .then(data => {
+            // Clear session storage (NOT user accounts)
+            localStorage.removeItem('hangmanSessionToken');
+            localStorage.removeItem('hangmanCurrentUser');
+            
+            showNotification('Logged out successfully!', 'success');
+            
+            // Redirect to home page
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Logout error:', error);
+            // Clear session storage even on error
+            localStorage.removeItem('hangmanSessionToken');
+            localStorage.removeItem('hangmanCurrentUser');
+            
+            showNotification('Logged out successfully!', 'success');
+            
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 1000);
+        });
+    } else {
+        // Just clear session storage and redirect
         localStorage.removeItem('hangmanSessionToken');
         localStorage.removeItem('hangmanCurrentUser');
         
         showNotification('Logged out successfully!', 'success');
         
-        // Redirect to home page
         setTimeout(() => {
             window.location.href = '../index.html';
         }, 1000);
-    })
-    .catch(error => {
-        console.error('Logout error:', error);
-        // Still clear local storage even if API fails
-        localStorage.removeItem('hangmanSessionToken');
-        localStorage.removeItem('hangmanCurrentUser');
-        
-        showNotification('Logged out successfully!', 'success');
-        setTimeout(() => {
-            window.location.href = '../index.html';
-        }, 1000);
-    });
+    }
 }
 
 /**
@@ -347,7 +375,7 @@ function resetButton(button, originalText) {
 }
 
 /**
- * Check if user is logged in with database verification
+ * Check if user session is valid with DATABASE verification
  */
 function checkCurrentUser() {
     const sessionToken = localStorage.getItem('hangmanSessionToken');
@@ -356,7 +384,7 @@ function checkCurrentUser() {
         return; // No session token, user not logged in
     }
     
-    // Verify session with server
+    // Verify session with DATABASE
     fetch('../api/auth.php', {
         method: 'POST',
         headers: {
@@ -370,11 +398,11 @@ function checkCurrentUser() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update user data in localStorage
+            // Update user data for current session
             localStorage.setItem('hangmanCurrentUser', JSON.stringify(data.user));
             console.log('User session verified:', data.user.username);
         } else {
-            // Session invalid, clear local storage
+            // Session invalid, clear session storage
             localStorage.removeItem('hangmanSessionToken');
             localStorage.removeItem('hangmanCurrentUser');
         }
@@ -388,7 +416,7 @@ function checkCurrentUser() {
 }
 
 /**
- * Check authentication for protected pages
+ * Check authentication for protected pages - DATABASE ONLY
  */
 function checkAuth() {
     const sessionToken = localStorage.getItem('hangmanSessionToken');
@@ -400,7 +428,22 @@ function checkAuth() {
         return false;
     }
     
-    // Verify session is still valid
+    // Verify session is still valid with database
     checkCurrentUser();
     return true;
 }
+
+/**
+ * Clean up any old localStorage data that might be left from previous versions
+ */
+function cleanupOldData() {
+    // Remove old localStorage user accounts (we only use database now)
+    localStorage.removeItem('hangmanUsers');
+    localStorage.removeItem('isLoggedIn');
+    
+    // Keep only session-related data
+    // hangmanSessionToken and hangmanCurrentUser are kept for current session
+}
+
+// Clean up old data on load
+document.addEventListener('DOMContentLoaded', cleanupOldData);

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Hangman Game Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">HANGMAN</a>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="game.html">Play</a></li>
+                        <li><a href="leaderboard.html" class="active">Leaderboard</a></li>
+                        <li><a href="stats.html">My Stats</a></li>
+                        <li><a href="login.html">Login</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="box">
+                <h2>[LEADERBOARD TITLE]</h2>
+                
+                <!-- Filter/Sort Options -->
+                <div style="margin: 20px 0; padding: 15px; border: 1px solid #999; background: #f0f0f0;">
+                    <label>[SORT BY:]</label>
+                    <select style="margin: 0 10px; padding: 5px;">
+                        <option>[TOTAL SCORE]</option>
+                        <option>[WIN RATE]</option>
+                        <option>[GAMES PLAYED]</option>
+                    </select>
+                    
+                    <label>[TIME PERIOD:]</label>
+                    <select style="margin: 0 10px; padding: 5px;">
+                        <option>[ALL TIME]</option>
+                        <option>[THIS WEEK]</option>
+                        <option>[THIS MONTH]</option>
+                    </select>
+                </div>
+                
+                <!-- Leaderboard Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>[RANK]</th>
+                                <th>[USERNAME]</th>
+                                <th>[TOTAL SCORE]</th>
+                                <th>[GAMES PLAYED]</th>
+                                <th>[WIN RATE]</th>
+                                <th>[BEST STREAK]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>[PLAYER 1]</td>
+                                <td>[SCORE 1]</td>
+                                <td>[GAMES 1]</td>
+                                <td>[RATE 1]</td>
+                                <td>[STREAK 1]</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>[PLAYER 2]</td>
+                                <td>[SCORE 2]</td>
+                                <td>[GAMES 2]</td>
+                                <td>[RATE 2]</td>
+                                <td>[STREAK 2]</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>[PLAYER 3]</td>
+                                <td>[SCORE 3]</td>
+                                <td>[GAMES 3]</td>
+                                <td>[RATE 3]</td>
+                                <td>[STREAK 3]</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>[PLAYER 4]</td>
+                                <td>[SCORE 4]</td>
+                                <td>[GAMES 4]</td>
+                                <td>[RATE 4]</td>
+                                <td>[STREAK 4]</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>[PLAYER 5]</td>
+                                <td>[SCORE 5]</td>
+                                <td>[GAMES 5]</td>
+                                <td>[RATE 5]</td>
+                                <td>[STREAK 5]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="btn">[PREVIOUS]</button>
+                    <span style="margin: 0 20px;">[PAGE 1 OF 5]</span>
+                    <button class="btn">[NEXT]</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>[COPYRIGHT FOOTER TEXT]</p>
+        </div>
+    </footer>
+</body>
+</html> 
