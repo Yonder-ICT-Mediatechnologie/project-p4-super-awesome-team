@@ -60,4 +60,8 @@ Let op de lengte van het woord voor hints
 Moeilijkere woorden geven meer punten!
 
 
+<<<<<<< HEAD
 Veel succes met raden! 🎮
+=======
+Veel succes met raden! 🎮
+>>>>>>> 0850da21bb08ed3f36ae460e7840f463c27a9b5e
